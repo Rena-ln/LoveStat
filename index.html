@@ -1,0 +1,254 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<title>LoveStat</title>
+<link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><path d=%22M50 85 C30 65, 10 50, 10 35 C10 20, 25 15, 35 15 C42 15, 47 18, 50 25 C53 18, 58 15, 65 15 C75 15, 90 20, 90 35 C90 50, 70 65, 50 85 Z%22 stroke=%22black%22 stroke-width=%223%22 fill=%22none%22/><polyline points=%2225,60 35,45 45,55 55,35 65,50 75,40%22 stroke=%22black%22 stroke-width=%222%22 fill=%22none%22/></svg>">
+<style>
+body {
+    font-family: 'Courier New', monospace;
+    background: white;
+    color: black;
+    max-width: 520px;
+    margin: 50px auto;
+    font-size: 14px;
+}
+input[type="number"], input[type="text"] {
+    font-family: 'Courier New', monospace;
+    font-size: 14px;
+    border: 1px solid black;
+    padding: 3px;
+    width: 100%;
+    border-radius: 0;
+}
+input[type="number"]::-webkit-outer-spin-button,
+input[type="number"]::-webkit-inner-spin-button {
+    -webkit-appearance: none;
+    margin: 0;
+}
+input[type="number"] {
+    -moz-appearance: textfield;
+}
+button {
+    font-family: 'Courier New', monospace;
+    font-size: 14px;
+    cursor: pointer;
+}
+hr {
+    border: none;
+    border-top: 1px solid black;
+}
+h1 {
+    font-size: 18px;
+    font-weight: bold;
+    margin-bottO1: 5px;
+    text-align: center;
+}
+.box {
+    border: 1px solid black;
+    padding: 10px;
+    margin-bottO1: 10px;
+}
+.group {
+    border: 1px solid black;
+    padding: 10px;
+    margin-bottO1: 10px;
+}
+pre {
+    margin: 0;
+    font-family: 'Courier New', monospace;
+    font-size: 14px;
+    white-space: pre-wrap;
+}
+.del {
+    color: black;
+    cursor: pointer;
+    text-decoration: underline;
+    font-size: 12px;
+}
+small {
+    color: gray;
+}
+</style>
+</head>
+<body>
+
+<h1>*** LoveStat ***</h1>
+<center><small>Enter numbers from 0 to 1</small></center>
+
+<br>
+
+<!-- person 1 -->
+<div class="box">
+<b>person 1</b><br><br>
+name: <input type="text" id="name1" placeholder="(optional)"><br><br>
+he(she) has feelings for you: <input type="number" id="A1" step="0.01" min="0" max="1"><br>
+you have feelings for him(her): <input type="number" id="I11" step="0.01" min="0" max="1"><br>
+he(she) never makes the first move: <input type="number" id="P1t1" step="0.01" min="0" max="1"><br>
+</div>
+<br>
+<!-- person 2 -->
+<div class="box" id="card2" style="display:none">
+<b>person 2</b> <span class="del" onclick="rp()">[delete]</span><br><br>
+name: <input type="text" id="name2" placeholder="(optional)"><br><br>
+he(she) has feelings for you: <input type="number" id="A2" step="0.01" min="0" max="1"><br>
+you have feelings for him(her): <input type="number" id="I12" step="0.01" min="0" max="1"><br>
+he(she) never makes the first move: <input type="number" id="P1t2" step="0.01" min="0" max="1"><br>
+</div>
+
+<br>
+<button onclick="ap()">+ add a person</button>
+&nbsp;
+<button onclick="calc()">calculate</button>
+
+<br><br>
+<hr>
+
+<div id="res" style="display:none">
+<br>
+<b><< Results >></b>
+<br><br>
+<div id="out"></div>
+</div>
+
+<script>
+var two = false;
+
+function ap() {
+    document.getElementById('card2').style.display = 'block';
+    two = true;
+}
+
+function rp() {
+    document.getElementById('card2').style.display = 'none';
+    document.getElementById('name2').value = '';
+    document.getElementById('A2').value = '';
+    document.getElementById('I12').value = '';
+    document.getElementById('P1t2').value = '';
+    two = false;
+}
+
+function r(v) {
+    return (v * 100).toFixed(1);
+}
+
+function pad(s, len) {
+    while (s.length < len) s = s + ' ';
+    return s;
+}
+
+function makeLine(label, value, maxLabelLen) {
+    return pad(label, maxLabelLen) + ' ' + value + '%';
+}
+
+function calc() {
+    var n1 = document.getElementById('name1').value.trim() || 'Person 1';
+    var A = parseFloat(document.getElementById('A1').value);
+    var I1 = parseFloat(document.getElementById('I11').value);
+    var P1t = parseFloat(document.getElementById('P1t1').value);
+
+    if (isNaN(A) || isNaN(I1) || isNaN(P1t) || A<0 || A>1 || I1<0 || I1>1 || P1t<0 || P1t>1) {
+        alert('error: check the correctness of numbers of person 1');
+        return;
+    }
+
+    var html = '';
+
+    if (!two) {
+        var Fi = P1t*A*I1 + P1t*(1-A)*I1 + (1-P1t)*(1-A)*I1;
+        var F1 = (1-P1t)*A*(1-I1);
+        var O2 = (1-P1t)*A*I1;
+        var N = 1 - Fi - F1 - O2;
+
+        var items = [
+            ['relationship with ' + n1, r(O2)],
+            [n1 + ' is in your friendzone', r(F1)],
+            [n1 + ' friend-zones you', r(Fi)],
+            ['nothing happen', r(N)]
+        ];
+        
+        var maxLabelLen = Math.max.apply(null, items.map(function(it) { return it[0].length; }));
+        var lines = items.map(function(it) { return makeLine(it[0], it[1], maxLabelLen); });
+
+        html += '<div class="group">';
+        html += '<b>[' + n1 + ']</b><br><br>';
+        html += '<pre>';
+        html += lines.join('\n');
+        html += '</pre>';
+        html += '</div>';
+
+    } else {
+        var n2 = document.getElementById('name2').value.trim() || 'Person 2';
+        var M = parseFloat(document.getElementById('A2').value);
+        var I2 = parseFloat(document.getElementById('I12').value);
+        var P2t = parseFloat(document.getElementById('P1t2').value);
+
+        if (isNaN(M) || isNaN(I2) || isNaN(P2t) || M<0 || M>1 || I2<0 || I2>1 || P2t<0 || P2t>1) {
+            alert('error: check the correctness of numbers of person 2');
+            return;
+        }
+
+        var TFI = P1t*P2t*M*(1-A)*I1*I2 + P1t*P2t*(1-M)*A*I1*I2 + P1t*P2t*(1-M)*(1-A)*I1*I2 + P1t*(1-P2t)*(1-M)*A*I1*I2 + (1-P1t)*P2t*M*(1-A)*I1*I2 + (1-P1t)*P2t*(1-M)*(1-A)*I1*I2 + (1-P1t)*(1-P2t)*(1-A)*(1-M)*I1*I2;
+        var FI1 = P1t*P2t*M*A*(1-I1)*I2 + P1t*P2t*M*(1-A)*(1-I1)*I2 + P1t*P2t*(1-M)*A*(1-I1)*I2 + P1t*P2t*(1-M)*(1-A)*(1-I1)*I2 + (1-P1t)*P2t*M*(1-A)*(1-I1)*I2 + (1-P1t)*P2t*(1-M)*(1-A)*(1-I1)*I2 + (1-P1t)*(1-P2t)*(1-A)*(1-M)*(1-I1)*I2;
+        var FI2 = P1t*P2t*M*A*I1*(1-I2) + P1t*P2t*M*(1-A)*I1*(1-I2) + P1t*P2t*(1-M)*A*I1*(1-I2) + P1t*P2t*(1-M)*(1-A)*I1*(1-I2) + (1-P1t)*P2t*M*(1-A)*I1*(1-I2) + (1-P1t)*P2t*(1-M)*(1-A)*I1*(1-I2) + (1-P1t)*(1-P2t)*(1-A)*(1-M)*I1*(1-I2);
+        var HZ = (1-P1t)*(1-P2t)*M*A*I1*I2;
+        var O1 = P1t*(1-P2t)*M*A*(1-I1)*I2 + P1t*(1-P2t)*M*A*I1*I2 + P1t*(1-P2t)*M*(1-A)*(1-I1)*I2 + P1t*(1-P2t)*M*(1-A)*I1*I2 + (1-P1t)*(1-P2t)*M*A*(1-I1)*I2 + (1-P1t)*(1-P2t)*M*(1-A)*(1-I1)*I2 + (1-P1t)*(1-P2t)*M*(1-A)*I1*I2;
+        var O2 = (1-P1t)*P2t*M*A*I1*I2 + (1-P1t)*P2t*M*A*I1*(1-I2) + (1-P1t)*P2t*(1-M)*A*I1*I2 + (1-P1t)*P2t*(1-M)*A*I1*(1-I2) + (1-P1t)*(1-P2t)*M*A*I1*(1-I2) + (1-P1t)*(1-P2t)*(1-M)*A*I1*I2 + (1-P1t)*(1-P2t)*(1-M)*A*I1*(1-I2);
+        var F2 = P1t*(1-P2t)*M*A*(1-I1)*(1-I2) + P1t*(1-P2t)*M*A*I1*(1-I2) + P1t*(1-P2t)*M*(1-A)*(1-I1)*(1-I2) + P1t*(1-P2t)*M*(1-A)*I1*(1-I2) + (1-P1t)*(1-P2t)*M*A*(1-I1)*(1-I2) + (1-P1t)*(1-P2t)*M*(1-A)*(1-I1)*(1-I2) + (1-P1t)*(1-P2t)*M*(1-A)*I1*(1-I2);
+        var F1 = (1-P1t)*P2t*M*A*(1-I1)*I2 + (1-P1t)*P2t*M*A*(1-I1)*(1-I2) + (1-P1t)*P2t*(1-M)*A*(1-I1)*I2 + (1-P1t)*P2t*(1-M)*A*(1-I1)*(1-I2) + (1-P1t)*(1-P2t)*M*A*(1-I1)*(1-I2) + (1-P1t)*(1-P2t)*(1-M)*A*(1-I1)*I2 + (1-P1t)*(1-P2t)*(1-M)*A*(1-I1)*(1-I2);
+        var N = 1 - TFI - FI1 - FI2 - HZ - O1 - O2 - F2 - F1;
+
+        var items1 = [
+            ['relationship with ' + n1, r(O2)],
+            [n1 + ' is in your friendzone', r(F1)],
+            [n1 + ' friend-zones you', r(FI2)]
+        ];
+        var maxLabelLen1 = Math.max.apply(null, items1.map(function(it) { return it[0].length; }));
+        var lines1 = items1.map(function(it) { return makeLine(it[0], it[1], maxLabelLen1); });
+
+        var items2 = [
+            ['relationship with ' + n2, r(O1)],
+            [n2 + ' is in friendzone', r(F2)],
+            ['you are in friendzone by ' + n2, r(FI1)]
+        ];
+        var maxLabelLen2 = Math.max.apply(null, items2.map(function(it) { return it[0].length; }));
+        var lines2 = items2.map(function(it) { return makeLine(it[0], it[1], maxLabelLen2); });
+
+        var items3 = [
+            ['nothing happen ', r(N)],
+            ['you are in frendzone by both ', r(TFI)],
+            ['you are in any kind of frendzone ', r(TFI+FI2+FI1)]
+        ];
+        var maxLabelLen3 = Math.max.apply(null, items3.map(function(it) { return it[0].length; }));
+        var lines3 = items3.map(function(it) { return makeLine(it[0], it[1], maxLabelLen3); });
+
+        html += '<div class="group">';
+        html += '<b>[general]</b><br><br>';
+        html += '<pre>';
+        html += lines3.join('\n');
+        html += '</pre>';
+        html += '</div>';
+
+        html += '<br><div class="group">';
+        html += '<b>[' + n1 + ']</b><br><br>';
+        html += '<pre>';
+        html += lines1.join('\n');
+        html += '</pre>';
+        html += '</div>';
+
+        html += '<br><div class="group">';
+        html += '<b>[' + n2 + ']</b><br><br>';
+        html += '<pre>';
+        html += lines2.join('\n');
+        html += '</pre>';
+        html += '</div>';
+
+    }
+
+    document.getElementById('out').innerHTML = html;
+    document.getElementById('res').style.display = 'block';
+}
+</script>
+
+</body>
+</html>
